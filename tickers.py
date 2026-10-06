@@ -1,7 +1,9 @@
 # tickers.py
+import streamlit as st          # <--- यह line missing थी!
 import pandas as pd
 import requests
 import io
+
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_nasdaq_tickers(limit=250):
@@ -9,10 +11,14 @@ def get_nasdaq_tickers(limit=250):
     url = "https://www.nasdaqtrader.com/dynamic/symdir/nasdaqlisted.txt"
     resp = requests.get(url, timeout=10)
     df = pd.read_csv(io.StringIO(resp.text), sep="|")
+    
+    # Test issues और footer row हटाएं
     df = df[df['Test Issue'] == 'N']
     df = df[df['Symbol'] != 'File Creation Time']
+    
     tickers = df['Symbol'].dropna().unique().tolist()
     return tickers[:limit]
+
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_sp500_tickers():
@@ -25,6 +31,7 @@ def get_sp500_tickers():
     tickers = [t.replace('.', '-') for t in tickers]
     return tickers
 
+
 def get_tickers(index_name, limit=None):
     """Index नाम के हिसाब से tickers return करता है"""
     if index_name == "Nasdaq 250":
@@ -32,7 +39,6 @@ def get_tickers(index_name, limit=None):
     elif index_name == "S&P 500":
         tickers = get_sp500_tickers()
     elif index_name == "Nasdaq 100":
-        # Nasdaq 100 filter (top 100 by market cap from Nasdaq list)
         all_nasdaq = get_nasdaq_tickers(limit=100)
         tickers = all_nasdaq
     else:
