@@ -1,0 +1,7 @@
+streamlit
+yfinance>=0.2.58
+pandas
+numpy
+plotly
+requests
+lxml
